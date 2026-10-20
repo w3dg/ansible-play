@@ -1,0 +1,35 @@
+---
+- name: Configure Raspberry Pi home lab
+  hosts: raspberrypis
+  become: true
+
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+
+    - name: Install useful packages
+      apt:
+        name:
+          - vim
+          - net-tools
+          - curl
+          - wget
+          - htop
+          - git
+        state: present
+
+    - name: Set the hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: Create a shared admin user
+      user:
+        name: admin
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+
+    - name: Print success message
+      debug:
+        msg: "✅ {{ inventory_hostname }} is configured and ready!"

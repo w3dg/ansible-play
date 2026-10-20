@@ -1,0 +1,44 @@
+services:
+  # Ansible control node - runs playbooks from here
+  control:
+    build:
+      context: ./docker/control
+    container_name: ansible-control
+    hostname: control
+    volumes:
+      - ./ansible:/ansible
+      - ./ssh_keys:/root/.ssh
+    depends_on:
+      - berry1
+      - berry2
+    networks:
+      - homelab
+    command: tail -f /dev/null  # keep container alive
+
+  # Simulated Raspberry Pi 1
+  berry1:
+    build:
+      context: ./docker/pi
+    container_name: berry1
+    hostname: berry1
+    networks:
+      homelab:
+        aliases:
+          - berry1
+    command: /usr/sbin/sshd -D
+
+  # Simulated Raspberry Pi 2
+  berry2:
+    build:
+      context: ./docker/pi
+    container_name: berry2
+    hostname: berry2
+    networks:
+      homelab:
+        aliases:
+          - berry2
+    command: /usr/sbin/sshd -D
+
+networks:
+  homelab:
+    driver: bridge
